@@ -1,0 +1,4 @@
+- name: setup k3s cluster
+  hosts: k3s
+  become: true
+  tasks:
