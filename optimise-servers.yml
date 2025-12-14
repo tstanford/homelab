@@ -1,0 +1,34 @@
+- name: make sure we log to ram to not kill ssd
+  hosts: vms
+  become: true
+  tasks:
+
+    - name: install prerequisites
+      apt:
+        pkg:
+          - wget
+          - curl
+
+    - name: get pgp key for repo
+      become: true
+      get_url:
+        url: https://azlux.fr/repo.gpg
+        dest: /usr/share/keyrings/azlux-archive-keyring.gpg  
+
+    - name: Add specified repository into sources list
+      apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/azlux-archive-keyring.gpg] http://packages.azlux.fr/debian/ bookworm main
+        state: present
+
+    - name: install log2ram package
+      apt:
+        pkg:
+          - log2ram
+        state: latest
+        update_cache: true
+      register: update_result
+
+    - name: reboot vms
+      reboot:
+        msg: "Reboot initiated by Ansible due to updates."
+      when: update_result.changed
