@@ -66,6 +66,7 @@
       shell: |
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       
+
 - name: Install MetalLB on the cluster
   hosts: k3s-controlplane
   become: true
@@ -78,6 +79,13 @@
       copy:
         src: ./MetalLBConfig.yaml
         dest: /tmp/MetalLBConfig.yaml
+
+    - name: Wait for MetalLB pods to be ready
+      shell: |
+        kubectl wait --namespace metallb-system \
+          --for=condition=ready pod \
+          --selector=app=metallb \
+          --timeout=90s
 
     - name: apply MetalLB configuration
       shell: |
