@@ -1,4 +1,71 @@
-- name: setup k3s cluster
-  hosts: k3s
+---
+
+- name: Prerequisites for k3s cluster
+  hosts: k3s-cluster
   become: true
   tasks:
+    - name: Install common tools
+      package:
+        name:
+          - curl
+          - wget
+          - vim
+          - htop
+        state: present
+
+- name: setup k3s control plane
+  hosts: k3s-controlplane
+  become: true
+  tasks:
+    - name: Install k3s
+      shell: |
+        curl -sfL https://get.k3s.io | sh -
+
+- name: Get Token from k3s control plane
+  hosts: k3s-controlplane
+  become: true
+  tasks:
+    - name: get token and store in variable
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token_raw
+      run_once: true
+
+    - name: Set global k3s_token fact
+      set_fact:
+        k3s_token: "{{ k3s_token_raw.content | b64decode | trim }}"
+      run_once: true
+
+- name: output token
+  hosts: k3s-nodes
+  tasks:
+    - name: Show k3s token
+      debug:
+        msg: "{{ hostvars[groups['k3s-controlplane'][0]].k3s_token }}"
+
+
+- name: setup k3s agents
+  hosts: k3s-nodes
+  become: true
+  tasks:
+    - name: Install k3s agent
+      shell: |
+        curl -sfL https://get.k3s.io | \
+        K3S_URL=https://k3s-master:6443 \
+        K3S_TOKEN={{ hostvars[groups['k3s-controlplane'][0]].k3s_token }} \
+        sh -
+      when: true
+
+# get kubectl config from control plane
+- name: Get kubectl config from control plane
+  hosts: k3s-controlplane
+  become: true
+  tasks:
+    - name: Fetch kubeconfig
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: ./kubeconfig
+
+
+
+

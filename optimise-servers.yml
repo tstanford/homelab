@@ -1,3 +1,13 @@
+- name: disable swap on vms
+  hosts: vms
+  become: true
+  tasks:
+    - name: disable swap
+      shell: swapoff -a
+
+    - name: disable swap in fstab
+      shell: sed -i '/swap/ s/^[^#]/#&/' /etc/fstab
+
 - name: make sure we log to ram to not kill ssd
   hosts: vms
   become: true
