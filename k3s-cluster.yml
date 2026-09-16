@@ -1,5 +1,7 @@
 ---
 
+# destination servers are debian. must be able to ssh onto servers and sudo without password prompt.
+
 - name: Prerequisites for k3s cluster
   hosts: k3s-cluster
   become: true
