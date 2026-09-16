@@ -1,5 +1,5 @@
 - name: disable swap on vms
-  hosts: vms
+  hosts: k3s-cluster
   become: true
   tasks:
     - name: disable swap
@@ -9,7 +9,7 @@
       shell: sed -i '/swap/ s/^[^#]/#&/' /etc/fstab
 
 - name: make sure we log to ram to not kill ssd
-  hosts: vms
+  hosts: k3s-cluster
   become: true
   tasks:
 
@@ -18,17 +18,6 @@
         pkg:
           - wget
           - curl
-
-    - name: get pgp key for repo
-      become: true
-      get_url:
-        url: https://azlux.fr/repo.gpg
-        dest: /usr/share/keyrings/azlux-archive-keyring.gpg  
-
-    - name: Add specified repository into sources list
-      apt_repository:
-        repo: deb [signed-by=/usr/share/keyrings/azlux-archive-keyring.gpg] http://packages.azlux.fr/debian/ bookworm main
-        state: present
 
     - name: install log2ram package
       apt:

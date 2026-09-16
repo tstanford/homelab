@@ -58,6 +58,36 @@
         sh -
       when: true
 
+- name: Install helm on all nodes
+  hosts: k3s-cluster
+  become: true
+  tasks:
+    - name: install helm
+      shell: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      
+- name: Install MetalLB on the cluster
+  hosts: k3s-controlplane
+  become: true
+  tasks:
+    - name: install MetalLB
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml
+
+    - name: Copy MetalLB configuration file to control plane
+      copy:
+        src: ./MetalLBConfig.yaml
+        dest: /tmp/MetalLBConfig.yaml
+
+    - name: apply MetalLB configuration
+      shell: |
+        kubectl apply -f /tmp/MetalLBConfig.yaml
+
+    - name: Clean up MetalLB configuration file
+      file: 
+        path: /tmp/MetalLBConfig.yaml
+        state: absent 
+
 # get kubectl config from control plane
 - name: Get kubectl config from control plane
   hosts: k3s-controlplane
@@ -68,6 +98,11 @@
         src: /etc/rancher/k3s/k3s.yaml
         dest: ./kubeconfig
 
-
-
-
+- name: fix kubeconfig file
+  hosts: localhost
+  tasks:
+    - name: replace localhost with control plane IP in kubeconfig
+      replace: 
+        path: ./kubeconfig/k3s-master/etc/rancher/k3s/k3s.yaml
+        regexp: '127.0.0.1'
+        replace: 'k3s-master'
