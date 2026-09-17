@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sparky
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sparky-site
+  namespace: sparky
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sparky-site
+  template:
+    metadata:
+      labels:
+        app: sparky-site
+    spec:
+      containers:
+        - name: sparky-site
+          image: tjstanford/sparky-site:0.0.1
+          ports:
+            - containerPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparky-site-service
+  namespace: sparky
+spec:
+  selector:
+    app: sparky-site
+  type: LoadBalancer
+  loadBalancerIP: 192.168.0.60
+  ports:
+    - port: 80
+      targetPort: 8000
