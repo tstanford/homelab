@@ -1,0 +1,71 @@
+#cloud-config
+# See the autoinstall documentation at:
+# https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html
+autoinstall:
+  apt:
+    disable_components: []
+    fallback: offline-install
+    geoip: true
+    mirror-selection:
+      primary:
+      - country-mirror
+      - arches:
+        - amd64
+        - arm64
+        - i386
+        uri: http://archive.ubuntu.com/ubuntu/
+      - arches:
+        - armhf
+        - powerpc
+        - ppc64el
+        - riscv64
+        - s390x
+        uri: http://ports.ubuntu.com/ubuntu-ports
+    preserve_sources_list: false
+    security:
+    - arches:
+      - amd64
+      - arm64
+      - i386
+      uri: http://security.ubuntu.com/ubuntu/
+    - arches:
+      - armhf
+      - powerpc
+      - ppc64el
+      - riscv64
+      - s390x
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  codecs:
+    install: false
+  drivers:
+    install: false
+  identity:
+    hostname: ubuntu
+    password: $6$VfA5ipe3Y0.Jh3wP$k81tGLPhbEBmFUYlISzQaOYa4SFk3buoqUFzJ8J6BWoxIKDGuqlghrXSq2BIDjN0e7SVtDc26pKF4px1iafoh.
+    realname: tim
+    username: tim
+  kernel:
+    package: linux-generic
+  keyboard:
+    layout: gb
+    toggle: null
+    variant: ''
+  locale: en_GB.UTF-8
+  network:
+    ethernets:
+      enp0s3:
+        dhcp4: true
+        dhcp6: true
+        set-name: enp0s3
+    version: 2
+  oem:
+    install: auto
+  source:
+    id: ubuntu-server-minimal
+    search_drivers: true
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  updates: security
+  version: 1

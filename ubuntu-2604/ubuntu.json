@@ -1,0 +1,57 @@
+{
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "vm_name": "ubuntu2604",
+      "guest_os_type": "Ubuntu_64",
+      "iso_url": "ubuntu-26.04.1-live-server-amd64.iso",
+      "iso_checksum": "md5:cb81232e7fb50cf009234df515306dfe",
+
+      "http_directory": "http",
+
+        "boot_wait": "5s",
+        "boot_command": [
+        "<wait1>",
+        "e<wait2>",
+        "<down><down><down><wait1>",
+        "<end>",
+        "<bs><bs><bs><bs><bs><wait1>",
+        "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ --- <wait1>",
+        "<f10>"
+        ],
+
+      "ssh_username": "tim",
+      "ssh_password": "password",
+      "ssh_timeout": "30m",
+
+      "disk_size": 20480,
+      "memory": 2048,
+      "cpus": 2
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "tim.pub",
+      "destination": "/tmp/tim.pub"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "mkdir -p /home/tim/.ssh",
+        "chmod 700 /home/tim/.ssh",
+        "cp /tmp/tim.pub /home/tim/.ssh/authorized_keys",
+        "chmod 600 /home/tim/.ssh/authorized_keys",
+        "chown -R tim:tim /home/tim/.ssh"
+      ]
+    }
+  ],
+
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "ubuntu2604.box"
+    }
+  ]
+}

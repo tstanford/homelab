@@ -1,0 +1,43 @@
+#cloud-config
+autoinstall:
+  version: 1
+
+  source:
+    id: ubuntu-server
+
+  interactive-sections: []
+
+  locale: en_GB.UTF-8
+  keyboard:
+    layout: gb
+
+  timezone: Europe/London
+
+  identity:
+    hostname: ubuntu2604
+    username: tim
+    password: "$6$rounds=4096$uQq1Y7tZQ9$9Jc2E7x0eZk5uQxqgH3v8p8u5Y7zJrYb1Qm7r0tQm7r0tQm7r0tQm7r0tQm7r0tQm7r0tQm7r0tQm7r0tQm7r0tQ/"
+
+  ssh:
+    install_server: true
+    allow-pw: true
+
+  network:
+    network:
+      version: 2
+      ethernets:
+        enp0s3:
+          dhcp4: true
+
+  storage:
+    layout:
+      name: lvm
+      match:
+        size: largest
+      wipe: superblock-recursive
+
+  packages:
+    - openssh-server
+
+  late-commands:
+    - curtin in-target --target=/target usermod -aG sudo tim

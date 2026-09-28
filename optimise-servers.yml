@@ -1,3 +1,5 @@
+---
+
 - name: disable swap on vms
   hosts: k3s-cluster
   become: true

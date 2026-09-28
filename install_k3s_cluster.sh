@@ -13,5 +13,7 @@ kubectl get nodes
 
 kubectl apply -f ./example_deployment/sparkysite.yaml 
 kubectl rollout status deployment/sparky-site -n sparky
-kubectl get all -n sparky
+kubectl get pods -n sparky -o wide
+
 xdg-open http://192.168.0.60
+
